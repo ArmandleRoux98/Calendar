@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Booking</title>
+</head>
+<body>
+    <div id="diaries">
+        <h2>Please select a diary below:</h2>
+    </div>
+    <form action="" id="create_booking">
+        <label for="diary">Diary:</label>
+        <select name="diary" id="diary_select">
+            <option value=""></option>
+        </select><br>
+        <label for="patient">Patient:</label>
+        <select name="patient" id="patient_select"></select><br>
+        <label for="booking_type">Booking Type</label>
+        <select name="booking_type" id="booking_type"></select><br>
+        <label for="booking_status">Booking Status</label>
+        <select name="booking_status" id="booking_status"></select><br> 
+        <label for="booking_date">Date</label>
+        <input type="date" name="booking_date" id="booking_date"><br>
+        <label for="booking_time">Time</label>
+        <input type="time" name="booking_time" id="booking_time"><br>
+        <label for="booking_reason">Reason</label>
+        <textarea name="booking_reason" id="booking_reason"></textarea><br>
+        <input type="submit" value="submit">
+    </form>
+    <!-- <script src="bookingScript.js"></script> -->
+    <script src="bookingScript.js" type="module"></script>
+    <script src="createBooking.js"></script>
+</body>
+</html>
