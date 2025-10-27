@@ -27,7 +27,19 @@ document.addEventListener('DOMContentLoaded', async (e) => {
 
 const getBookings = document.getElementById("get_bookings")
 if (getBookings) {
-    getBookings.addEventListener("click", async (e) => {
+    getBookings.addEventListener("click", async => {
+        loadBookings()
+    })
+}
+
+const newBooking = document.getElementById("new_booking")
+if (newBooking) {
+    newBooking.addEventListener("click", () => {
+        window.location.href = "create_booking.html";
+    })
+}
+
+async function loadBookings() {
         const date = document.getElementById("booking_date").value;
         const diary = JSON.parse(document.getElementById("diary_select").value);
         const params = new URLSearchParams();
@@ -43,20 +55,19 @@ if (getBookings) {
             const data = await res.json();
             // console.log(data)
             bookingDiv = document.getElementById("bookings");
-            const temp_table = document.getElementById("bookings_table");
-            if (temp_table) {
-                temp_table.remove()
-            }
             const table = await buildBookingsTable(data.data);
             bookingDiv.appendChild(table);
 
         } catch (error) {
             console.log(error);
         }
-    })
-}
+    }
 
 async function buildBookingsTable(data) {
+    const temp_table = document.getElementById("bookings_table");
+    if (temp_table) {
+        temp_table.remove()
+    }
     // Build table
     const table = document.createElement("table");
     table.id = "bookings_table";
@@ -83,45 +94,72 @@ async function buildBookingsTable(data) {
     // Build rest of table
     if (data.length > 0) {
         for (const booking of data) {
-            const tr = document.createElement("tr");
-            console.log(booking);
-            const patientName = booking.patient_name;
-            console.log(patientName);
-            const patientSurname = booking.patient_surname;
-            console.log(patientSurname);
-            const booking_type = await getBookingType(booking.booking_type_uid);
-            console.log("Booking Type:",  booking_type);
-            const booking_status = await getBookingStatus(booking.booking_status_uid);
-            const start_time = booking.start_time.slice(booking.start_time.length-8, booking.start_time.length-3);
-            console.log(start_time);
-            const duration = booking.duration;
-            const reason = booking.reason;
-            // Create all data
-            // then create loop with td to add elements
-            const bookingData = [
-                patientName, 
-                patientSurname, 
-                booking_type, 
-                booking_status, 
-                start_time, 
-                duration, 
-                reason];
-            bookingData.forEach(value => {
-                const td = document.createElement("td");
-                td.textContent = value;
-                tr.appendChild(td)
-            })
-            const delIcon = document.createElement("p");
-            delIcon.textContent = "Cancel";
-            const deleteTd = document.createElement("td");
-            deleteTd.appendChild(delIcon)
-            tr.appendChild(deleteTd);
-            tbody.appendChild(tr);
+            if (!booking.cancelled) {
+                const tr = document.createElement("tr");
+                console.log(booking);
+                const patientName = booking.patient_name;
+                console.log(patientName);
+                const patientSurname = booking.patient_surname;
+                console.log(patientSurname);
+                const booking_type = await getBookingType(booking.booking_type_uid);
+                console.log("Booking Type:",  booking_type);
+                const booking_status = await getBookingStatus(booking.booking_status_uid);
+                const start_time = booking.start_time.slice(booking.start_time.length-8, booking.start_time.length-3);
+                console.log(start_time);
+                const duration = booking.duration;
+                const reason = booking.reason;
+                // Create all data
+                // then create loop with td to add elements
+                const bookingData = [
+                    patientName, 
+                    patientSurname, 
+                    booking_type, 
+                    booking_status, 
+                    start_time, 
+                    duration, 
+                    reason];
+                bookingData.forEach(value => {
+                    const td = document.createElement("td");
+                    td.textContent = value;
+                    tr.appendChild(td);
+                })
+                const delAnchor = document.createElement("form");
+                delAnchor.action = `http://localhost:3000/delete/${booking.uid}`;
+                delAnchor.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    if (confirm("Are you sure you would like to cancel this booking?")) {
+                        try {
+                            console.log(delAnchor.action)
+                            const response = await fetch(delAnchor.action, {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                credentials: "include"
+                            })
+
+                            if (!response.ok) throw new Error("Failed to delete booking.")
+                            
+                            await loadBookings()
+                        } catch (error) {
+                            console.log(error)
+                        }
+                    }
+                })
+                const delIcon = document.createElement("button");
+                delIcon.type = "submit"
+                delIcon.textContent = "Cancel";
+                delAnchor.appendChild(delIcon);
+                const deleteTd = document.createElement("td");
+                deleteTd.appendChild(delAnchor);
+                tr.appendChild(deleteTd);
+                tbody.appendChild(tr);
+            }
         }
     }
 
-    table.appendChild(thead)
-    table.appendChild(tbody)
+    table.appendChild(thead);
+    table.appendChild(tbody);
 
     return table
     
