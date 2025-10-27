@@ -223,7 +223,6 @@ app.get("/booking_type", async (req, res) => {
 
 
 app.get("/booking_status", async (req, res) => {
-    const bookingStatusUid = Number(req.query.booking_status_uid);
     const entityUid = Number(req.query.entity_uid);
     const diaryUid = Number(req.query.diary_uid);
 
@@ -369,6 +368,37 @@ app.post("/create", async (req, res) => {
     };
 })
 
+
+app.put("/delete/:uid", async (req, res) => {
+    const bookingUid = req.params.uid
+    console.log(bookingUid)
+    const payload = {
+        "model": {
+            "uid": Number(bookingUid),
+            "cancelled": true
+        }
+    }
+    console.log(payload)
+    try {
+        console.log(req.cookies.session_id)
+        const response = await fetch(`https://dev_interview.qagoodx.co.za/api/booking/${bookingUid}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Cookie": `session_id=${req.cookies.session_id}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+
+    const data = await response.json();
+
+    console.log("Booking Deleted Successfully: ", data)
+    } catch(error) {
+        console.error("Error:", error);
+    };
+})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
