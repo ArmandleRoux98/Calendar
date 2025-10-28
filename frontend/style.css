@@ -1,0 +1,43 @@
+#edit_booking{
+    margin: auto;
+    margin-top: 100px;
+    width: 40%;
+    border-radius: 5%;
+}
+.label{
+    background-color: lightblue;
+}
+.form_head{
+    text-align: center;
+    font-family: Arial Narrow,Arial,sans-serif;
+}
+.label_width{
+    width: 25%;
+}
+
+#bookings_table tr:nth-child(even){
+  background-color: rgba(150, 212, 212, 0.4);
+}
+
+#bookings_table th:nth-child(even),td:nth-child(even){
+  background-color: rgba(150, 212, 212, 0.4);
+}
+
+.box_container {
+    border-style: solid;
+    border-width: 0.5px;
+    border-radius: 5%;
+    width: 50%;
+    margin: auto;
+    margin-top: 50px;
+    text-align: center;
+}
+#bookings{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#diary_select{
+    width: 50%;
+    margin: auto;
+}
