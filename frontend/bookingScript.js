@@ -123,35 +123,13 @@ async function buildBookingsTable(data) {
                     td.textContent = value;
                     tr.appendChild(td);
                 })
-                const delAnchor = document.createElement("form");
-                delAnchor.action = `http://localhost:3000/delete/${booking.uid}`;
-                delAnchor.addEventListener("submit", async (e) => {
-                    e.preventDefault();
-                    if (confirm("Are you sure you would like to cancel this booking?")) {
-                        try {
-                            console.log(delAnchor.action)
-                            const response = await fetch(delAnchor.action, {
-                                method: "PUT",
-                                headers: {
-                                    "Content-Type": "application/json"
-                                },
-                                credentials: "include"
-                            })
-
-                            if (!response.ok) throw new Error("Failed to delete booking.")
-                            
-                            await loadBookings()
-                        } catch (error) {
-                            console.log(error)
-                        }
-                    }
-                })
-                const delIcon = document.createElement("button");
-                delIcon.type = "submit"
-                delIcon.textContent = "Cancel";
-                delAnchor.appendChild(delIcon);
+                const editButton = createEditButton(booking.uid)
+                const editTd = document.createElement("td");
+                editTd.appendChild(editButton);
+                tr.appendChild(editTd);
+                const delButton = createDeleteButton(booking.uid)
                 const deleteTd = document.createElement("td");
-                deleteTd.appendChild(delAnchor);
+                deleteTd.appendChild(delButton);
                 tr.appendChild(deleteTd);
                 tbody.appendChild(tr);
             }
@@ -163,6 +141,53 @@ async function buildBookingsTable(data) {
 
     return table
     
+}
+
+function createDeleteButton(bookingUid) {
+    const delButton = document.createElement("form");
+    delButton.action = `http://localhost:3000/delete/${bookingUid}`;
+    delButton.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (confirm("Are you sure you would like to cancel this booking?")) {
+            try {
+                console.log(delButton.action)
+                const response = await fetch(delButton.action, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include"
+                })
+
+                if (!response.ok) throw new Error("Failed to delete booking.")
+                
+                await loadBookings()
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    })
+
+    const delIcon = document.createElement("button");
+    delIcon.type = "submit"
+    delIcon.textContent = "Cancel";
+    delButton.appendChild(delIcon);
+
+    return delButton
+}
+
+function createEditButton(bookingUid) {
+    const params = new URLSearchParams();
+    params.append("booking_uid", bookingUid);
+    
+    const editButton = document.createElement("button");
+    editButton.type = "submit";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => {
+        window.location.href = `edit_booking.html?${params.toString()}`
+    })
+
+    return editButton
 }
 
 async function getBookingType(booking_type_uid) {
