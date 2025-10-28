@@ -170,6 +170,47 @@ app.get("/bookings", async (req, res) => {
     };
 })
 
+app.get("/bookings/:uid", async (req, res) => {
+    console.log(req.params.uid);
+    const bookingUid = req.params.uid
+    const fields = [
+        "uid",
+        "patient_uid",
+        "start_time",
+        "duration",
+        "reason",
+        "cancelled"
+    ]
+    const filter = [
+            "=",
+            ["I","uid"],
+            ["L",Number(bookingUid)]
+    ]
+    const params = new URLSearchParams();
+    params.append('fields', JSON.stringify(fields));
+    params.append('filter', JSON.stringify(filter));
+
+    const endPoint = `https://dev_interview.qagoodx.co.za/api/booking?${params.toString()}`;
+    console.log(endPoint);
+    try {
+        const response = await fetch(endPoint, {
+            method: "GET",
+            headers: {
+                "Cookie": `session_id=${req.cookies.session_id}`
+            }
+        })
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
+        const data = await response.json();
+        
+        console.log("Success", data);
+        res.json(data);
+
+
+    } catch(error) {
+        console.error("Error:", error);
+    };
+})
+
 app.get("/booking_type", async (req, res) => {
     const entityUid = req.query.entity_uid;
     const diaryUid = req.query.diary_uid;
