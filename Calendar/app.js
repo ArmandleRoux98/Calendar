@@ -175,6 +175,7 @@ app.get("/bookings/:uid", async (req, res) => {
     const bookingUid = req.params.uid
     const fields = [
         "uid",
+        "entity_uid",
         "patient_uid",
         "start_time",
         "duration",
@@ -206,6 +207,49 @@ app.get("/bookings/:uid", async (req, res) => {
         res.json(data);
 
 
+    } catch(error) {
+        console.error("Error:", error);
+    };
+})
+
+app.post("/update/:uid", async (req, res) => {
+    const uid = Number(req.params.uid)
+    const date = `${req.body.booking_date}T${req.body.booking_time}:00`
+    const duration = Number(req.body.duration)
+    const patientUid = Number(req.body.patient)
+    const reason = req.body.booking_reason
+    console.log(req.params.uid)
+    console.log(req.body.patient)
+
+    const payload = {
+        "model": 
+        {
+            "uid": uid,
+            "start_time": date,
+            "duration": duration,
+            "patient_uid": patientUid,
+            "reason": reason,
+            "cancelled": false
+        }
+    }   
+    console.log(payload)
+
+    try {
+        console.log(req.cookies.session_id)
+        const response = await fetch(`https://dev_interview.qagoodx.co.za/api/booking/${uid}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Cookie": `session_id=${req.cookies.session_id}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+
+    const data = await response.json();
+
+    console.log("Booking Updated Successfully: ", data)
     } catch(error) {
         console.error("Error:", error);
     };
