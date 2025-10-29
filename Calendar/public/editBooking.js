@@ -75,7 +75,7 @@ if (editForm) {
             }
 
             // Redirect to home page
-            window.location.href = "./index.html";
+            window.location.href = "/";
         } catch (error) {
             console.error(error)
         }

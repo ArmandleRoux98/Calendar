@@ -165,7 +165,7 @@ if (createBookingForm) {
         } catch (error) {
             console.error(error)
         }
-        window.location.href = "index.html";
+        window.location.href = "/";
     })    
 }
     
