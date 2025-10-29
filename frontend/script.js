@@ -1,11 +1,9 @@
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
-    console.log(formData)
-    
+    // Retrieve form data
+    const formData = new FormData(e.target);    
     const data = Object.fromEntries(formData.entries());
-    console.log(data)
 
     await fetch("http://localhost:3000/login/", {
         method: "POST",

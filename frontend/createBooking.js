@@ -1,32 +1,43 @@
 
-const diarySelect = document.getElementById("diary_select")
-if (diarySelect){
-    diarySelect.addEventListener("change", async function() {
-        await buildPatientSelect(JSON.parse(this.value).entity_uid)
-        
-        const bookingTypes = await getBookingTypes(JSON.parse(this.value));
-        const bookingTypeSelect = document.getElementById("booking_type");
-        console.log(bookingTypes)
-        for (const bookingType of bookingTypes.data.reverse()) {
-            const option = document.createElement("option");
-            option.value = bookingType.uid;
-            option.textContent = bookingType.name;
-            bookingTypeSelect.appendChild(option);
-        }
-        
-        const bookingStatusSelect = document.getElementById("booking_status");
-        const bookingStatuses = await getBookingStatuses(JSON.parse(this.value));
-        console.log(bookingStatuses)
-        for (const status of bookingStatuses.data) {
-            const option = document.createElement("option");
-            option.value = status.uid;
-            option.textContent = status.name;
-            bookingStatusSelect.appendChild(option)
-        }
-        
-    })    
-}
+document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const diary = {
+        entity_uid: urlParams.get("entity_uid"),
+        diary_uid: urlParams.get("diary_uid")
+    }
 
+    await buildPatientSelect(urlParams.get("entity_uid"))
+
+    // retrieve booking types and create select element
+    const bookingTypes = await getBookingTypes(diary);
+    const bookingTypeSelect = document.getElementById("booking_type");
+    console.log(bookingTypes)
+    for (const bookingType of bookingTypes.data.reverse()) {
+        const option = document.createElement("option");
+        option.value = bookingType.uid;
+        option.textContent = bookingType.name;
+        bookingTypeSelect.appendChild(option);
+    }
+    // retrieve booking statuses and create select element
+    const bookingStatusSelect = document.getElementById("booking_status");
+    const bookingStatuses = await getBookingStatuses(diary);
+    console.log(bookingStatuses)
+    for (const status of bookingStatuses.data) {
+        const option = document.createElement("option");
+        option.value = status.uid;
+        option.textContent = status.name;
+        bookingStatusSelect.appendChild(option)
+    }
+
+    createDurationSelect();
+    
+})    
+
+/**
+ * Builds a select elements containing patient names and surnames of the entity with given uid
+ * @param {number} entityUid - Uid of entity.
+ * @param {number} patientUid - Uid of patient to focus on select.
+ */
 export default async function buildPatientSelect(entityUid, patientUid = -1) {
     const patientSelect = document.getElementById("patient_select")
     if (patientSelect) {
@@ -43,6 +54,11 @@ export default async function buildPatientSelect(entityUid, patientUid = -1) {
     }
 }
 
+/**
+ * Makes API call to backend to retrieve all patients of entity with given uid.
+ * @param {number} entityUid - Uid of entity.
+ * @returns {json} data - json with all patient data.
+ */
 async function getPatients(entityUid) {
     console.log(entityUid)
     const params = new URLSearchParams();
@@ -59,6 +75,32 @@ async function getPatients(entityUid) {
 }
 
 
+/**
+ * Gets select element "duration" from DOM and populates it with options.
+ * @param {number} bookingDuration - value of booking duration to focus in select.
+**/
+export async function createDurationSelect(bookingDuration) {
+    const durationValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+    const durationSelect = document.getElementById("duration")
+    if (durationSelect){
+        durationValues.forEach((value) => {
+            const durationOption = document.createElement("option");
+            durationOption.value = value;
+            durationOption.text = value;
+            if (value === bookingDuration) {
+                durationOption.selected = true;
+            }
+            durationSelect.appendChild(durationOption);
+        })
+        
+    }
+}
+
+/**
+ * Retrieve all available booking types for given diary.
+ * @param {json} diary - diary to retrieve booking types of.
+ * @returns {json} data - json with all booking types.
+**/
 async function getBookingTypes(diary) {
     console.log(diary)
     const params = new URLSearchParams();
@@ -74,6 +116,11 @@ async function getBookingTypes(diary) {
     return data
 }
 
+/**
+ * Retrieve all available booking statuses for given diary.
+ * @param {json} diary - diary to retrieve booking statuses of.
+ * @returns {json} data - json with all booking statuses.
+**/
 async function getBookingStatuses(diary) {
     console.log(diary)
     const params = new URLSearchParams();
@@ -92,21 +139,32 @@ async function getBookingStatuses(diary) {
 const createBookingForm = document.getElementById('create_booking')
 if (createBookingForm) {
     createBookingForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Retrieve data from form and url parameters
+        const urlParams = new URLSearchParams(window.location.search);
         const formData = new FormData(e.target);
-        console.log(formData);
-        
         const data = Object.fromEntries(formData.entries());
-        console.log(data)
 
-        const res = await fetch("http://localhost:3000/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: 'include',
-            body: JSON.stringify(data)
-        })
+        // Call to backend to apply update to booking
+        try {
+            const res = await fetch(`http://localhost:3000/create?${urlParams.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            })
 
+            if (!res.ok) {
+                throw new Error((`Update booking failed: ${res.text()}`));
+            }
+            // Redirect to home page
+            window.location.href = "./index.html";
+        } catch (error) {
+            console.error(error)
+        }
         window.location.href = "index.html";
     })    
 }

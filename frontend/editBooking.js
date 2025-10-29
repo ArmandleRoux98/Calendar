@@ -1,26 +1,21 @@
 import buildPatientSelect from "./createBooking.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const durationValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
-    
+document.addEventListener("DOMContentLoaded", async () => {  
     const urlParams = new URLSearchParams(window.location.search);
-    console.log(urlParams.get("booking_uid"));
+    // Retrieve data for specified booking
     const res = await fetch(`http://localhost:3000/bookings/${urlParams.get("booking_uid")}`, {
         credentials: "include"
     });
-
     const data = await res.json();
-    console.log(data.data);
+
     if (data.data.length > 0) {
-        console.log(urlParams)
         const booking = data.data[0];
         await buildPatientSelect(urlParams.get("entity_uid"), Number(booking.patient_uid))
-        // add date to date input
+        
+        // Create date and time inputs and fill with booking data
         const dateTime = booking.start_time;
         const date = dateTime.slice(0, 10);
         const time = dateTime.slice(11, 16);
-        console.log(date);
-        console.log(time);
         const dateInput = document.getElementById("booking_date");
         if (dateInput) {
             dateInput.value = date;
@@ -29,15 +24,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (timeInput) {
             timeInput.value = time;
         }
-        // add time to time input
-        // add reason in reason text box
+        // Create text box and fill with booking reason
         const reason = booking.reason;
         console.log(reason);
         const reasonTextBox = document.getElementById("booking_reason");
         if (reasonTextBox) {
             reasonTextBox.value = reason
         }
-        // add duration times
+        // Create duration select  (replace with import function form createBooking.js)
         const durationSelect = document.getElementById("duration")
         if (durationSelect){
             durationValues.forEach((value) => {
@@ -54,27 +48,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 })
 
+// On form submission make API call to backend to apply updated data to booking 
 const editForm = document.getElementById("edit_booking")
 if (editForm) {
     editForm.addEventListener("submit", async (e) => {
         e.preventDefault()
-        const formData = new FormData(e.target);
-        console.log(formData);
-        
-        const data = Object.fromEntries(formData.entries());
-        console.log("Form data:", data)
 
+        // Retrieve data from form and url parameters
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
         const urlParams = new URLSearchParams(window.location.search);
 
-        const res = await fetch(`http://localhost:3000/update/${urlParams.get("booking_uid")}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: 'include',
-            body: JSON.stringify(data)
-        })
+        // Call to backend to apply update to booking
+        try {
+            const res = await fetch(`http://localhost:3000/update/${urlParams.get("booking_uid")}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            })
 
-        // window.location.href = "index.html";
+            if (!res.ok) {
+                throw new Error((`Update booking failed: ${res.text()}`));
+            }
+
+            // Redirect to home page
+            window.location.href = "./index.html";
+        } catch (error) {
+            console.error(error)
+        }
+
     })
 }

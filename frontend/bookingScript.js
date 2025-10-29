@@ -3,9 +3,11 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     // Add todays date to date input
     const today = new Date().toJSON();
     const bookingDateInput = document.getElementById("booking_date");
-    bookingDateInput.value = today.slice(0, 10);
+    if (!bookingDateInput.value){
+        bookingDateInput.value = today.slice(0, 10);
+    }
     
-    // Fetch diaries to build diary select
+    // Fetch all available diaries to build diary select element
     try {
         const res = await fetch(`http://localhost:3000/diaries`, {
             credentials: 'include',
@@ -29,12 +31,13 @@ document.addEventListener('DOMContentLoaded', async (e) => {
         if (diaries.length > 0) {
             loadBookings()
         }
+        applyNewBooking()
     } catch (error){
         console.log(error)
     }
 })
 
-
+// Add bookings to "get_bookings" div
 const getBookings = document.getElementById("get_bookings")
 if (getBookings) {
     getBookings.addEventListener("click", async => {
@@ -42,16 +45,31 @@ if (getBookings) {
     })
 }
 
-const newBooking = document.getElementById("new_booking")
-if (newBooking) {
-    newBooking.addEventListener("click", () => {
-        window.location.href = "create_booking.html";
-    })
+
+/**
+ * Apply on click event lister to "new_booking" to navigate user to 
+ * create_booking.html with diary_uid and entity_uid parameters
+ */
+async function applyNewBooking() {
+    const newBooking = document.getElementById("new_booking")
+    if (newBooking) {
+        const diarySelect = document.getElementById("diary_select")
+        const dairyData = JSON.parse(diarySelect.value)
+        const params = new URLSearchParams();
+        params.append("diary_uid", dairyData.diary_uid)
+        params.append("entity_uid", dairyData.entity_uid)
+        newBooking.addEventListener("click", () => {
+            window.location.href = `create_booking.html?${params.toString()}`;
+        })
+    }
 }
 
+/**
+ * Make API call to backend to retrieve bookings for selected date and
+ * and add it to a table element.
+ */
 async function loadBookings() {
         const date = document.getElementById("booking_date").value;
-        console.log(date);
         if (date.length === 0){
             return
         }
@@ -59,7 +77,6 @@ async function loadBookings() {
         const params = new URLSearchParams();
         params.append('date', date);
         params.append('diary_uid', diary.diary_uid);
-        params.append('entity_uid', diary.entity_uid);
 
         try {
             const res = await fetch(`http://localhost:3000/bookings?${params.toString()}`, {
@@ -67,7 +84,7 @@ async function loadBookings() {
             });
             if (!res.ok) throw new Error("Error in response.");
             const data = await res.json();
-            // console.log(data)
+
             const bookingDiv = document.getElementById("bookings");
             if (bookingDiv) {
                 const table = await buildBookingsTable(data.data);
@@ -81,12 +98,18 @@ async function loadBookings() {
         }
     }
 
+/**
+ * Creates a table element that is populated with the bookings data provided.
+ * @param {json} data - bookings data to load into table.
+ * @returns {HTMLTableElement} Table populated with booking data provided. 
+ */
 async function buildBookingsTable(data) {
+    // Destroy previous table
     const temp_table = document.getElementById("bookings_table");
     if (temp_table) {
         temp_table.remove()
     }
-    // Build table
+
     const table = document.createElement("table");
     table.id = "bookings_table";
     const thead = document.createElement("thead");
@@ -108,26 +131,22 @@ async function buildBookingsTable(data) {
         headerRow.appendChild(th);
     })
     thead.appendChild(headerRow)
+    thead.classList.add("table-dark");
 
-    // Build rest of table
+    // Build table body
     if (data.length > 0) {
         for (const booking of data) {
             if (!booking.cancelled) {
+                // Retrieve data for all attributes of booking
                 const tr = document.createElement("tr");
-                console.log(booking);
                 const patientName = booking.patient_name;
-                console.log(patientName);
                 const patientSurname = booking.patient_surname;
-                console.log(patientSurname);
                 const booking_type = await getBookingType(booking.booking_type_uid);
-                console.log("Booking Type:",  booking_type);
                 const booking_status = await getBookingStatus(booking.booking_status_uid);
                 const start_time = booking.start_time.slice(booking.start_time.length-8, booking.start_time.length-3);
-                console.log(start_time);
                 const duration = booking.duration;
                 const reason = booking.reason;
-                // Create all data
-                // then create loop with td to add elements
+                // Add all data to list to create td elements
                 const bookingData = [
                     patientName, 
                     patientSurname, 
@@ -136,11 +155,13 @@ async function buildBookingsTable(data) {
                     start_time, 
                     duration, 
                     reason];
+                // Create td elements
                 bookingData.forEach(value => {
                     const td = document.createElement("td");
                     td.textContent = value;
                     tr.appendChild(td);
                 })
+                // Add edit and delete buttons
                 const editButton = createEditButton(booking.uid, booking.entity_uid)
                 const editTd = document.createElement("td");
                 editTd.appendChild(editButton);
@@ -149,6 +170,7 @@ async function buildBookingsTable(data) {
                 const deleteTd = document.createElement("td");
                 deleteTd.appendChild(delButton);
                 tr.appendChild(deleteTd);
+                
                 tbody.appendChild(tr);
             }
         }
@@ -156,11 +178,21 @@ async function buildBookingsTable(data) {
 
     table.appendChild(thead);
     table.appendChild(tbody);
+    table.classList.add("table", "table-striped", "table-hover", "align-middle", "text-center", "rounded");
+
+    const bookingsDiv = document.getElementById("bookings")
+    bookingsDiv.appendChild(table)
 
     return table
     
 }
 
+/**
+ * Creates a delete button linked to given booking uid that will call to 
+ * the backend to cancel the booking with the linked uid.
+ * @param {number} bookingUid - Uid of booking to attach to delete button.
+ * @returns {HTMLButtonElement} Delete button linked to given booking uid.
+ */
 function createDeleteButton(bookingUid) {
     const delButton = document.createElement("form");
     delButton.action = `http://localhost:3000/delete/${bookingUid}`;
@@ -168,7 +200,6 @@ function createDeleteButton(bookingUid) {
         e.preventDefault();
         if (confirm("Are you sure you would like to cancel this booking?")) {
             try {
-                console.log(delButton.action)
                 const response = await fetch(delButton.action, {
                     method: "PUT",
                     headers: {
@@ -188,12 +219,19 @@ function createDeleteButton(bookingUid) {
 
     const delIcon = document.createElement("button");
     delIcon.type = "submit"
-    delIcon.textContent = "Cancel";
+    delIcon.textContent = "❌ Cancel";
+    delIcon.classList.add("btn", "btn-danger") 
     delButton.appendChild(delIcon);
 
     return delButton
 }
 
+/**
+ * Creates a edit button linked to given booking uid that will call to 
+ * the backend to edit the booking with the linked uid.
+ * @param {number} bookingUid - Uid of booking to attach to edit button.
+ * @returns {HTMLButtonElement} Edit button linked to given booking uid.
+ */
 function createEditButton(bookingUid, entityUid) {
     const params = new URLSearchParams();
     params.append("booking_uid", bookingUid);
@@ -201,13 +239,15 @@ function createEditButton(bookingUid, entityUid) {
     
     const editButton = document.createElement("button");
     editButton.type = "submit";
-    editButton.textContent = "Edit";
+    editButton.textContent = "📝 Edit";
+    editButton.classList.add("btn", "btn-secondary") 
     editButton.addEventListener("click", () => {
         window.location.href = `edit_booking.html?${params.toString()}`
     })
 
     return editButton
 }
+
 
 async function getBookingType(booking_type_uid) {
     const params = new URLSearchParams();
@@ -220,12 +260,10 @@ async function getBookingType(booking_type_uid) {
         credentials : "include"
     })
     const data = await res.json()
-    console.log(typeof(data.data[0].uid));
+
     booking_type_uid = Number(booking_type_uid)
-    console.log(typeof(booking_type_uid))
 
     for (const type of data.data) {
-        console.log("Type:", type.uid, type.name, "Booking_UID:", booking_type_uid)
         if (type.uid == booking_type_uid){
             return type.name;
         }
@@ -235,7 +273,6 @@ async function getBookingType(booking_type_uid) {
 async function getBookingStatus(booking_status_uid) {
     const params = new URLSearchParams();
     params.append("booking_status_uid", booking_status_uid);
-    console.log(booking_status_uid);
     const diary = JSON.parse(document.getElementById("diary_select").value);
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
@@ -244,12 +281,9 @@ async function getBookingStatus(booking_status_uid) {
         credentials : "include"
     })
     const data = await res.json();
-    console.log(typeof(data.data[0].uid));
     booking_status_uid = Number(booking_status_uid)
-    console.log(typeof(booking_status_uid))
 
     for (const type of data.data) {
-        console.log("Type:", type.uid, type.name, "Booking_UID:", booking_status_uid)
         if (type.uid == booking_status_uid){
             return type.name;
         }
