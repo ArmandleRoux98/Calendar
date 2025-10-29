@@ -3,33 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
     <title>Create Booking</title>
+
 </head>
 <body>
-    <div id="diaries">
-        <h2>Please select a diary below:</h2>
-    </div>
-    <form action="" id="create_booking">
-        <label for="diary">Diary:</label>
-        <select name="diary" id="diary_select">
-            <option value=""></option>
-        </select><br>
-        <label for="patient">Patient:</label>
-        <select name="patient" id="patient_select"></select><br>
-        <label for="booking_type">Booking Type</label>
-        <select name="booking_type" id="booking_type"></select><br>
-        <label for="booking_status">Booking Status</label>
-        <select name="booking_status" id="booking_status"></select><br> 
-        <label for="booking_date">Date</label>
-        <input type="date" name="booking_date" id="booking_date"><br>
-        <label for="booking_time">Time</label>
-        <input type="time" name="booking_time" id="booking_time"><br>
-        <label for="booking_reason">Reason</label>
-        <textarea name="booking_reason" id="booking_reason"></textarea><br>
-        <input type="submit" value="submit">
+    <form action="" id="create_booking" class="form-control">
+        <h2 class="form_head display-4">Create booking</h2>
+        <div class="input-group mb3">
+            <label for="patient" class="label label_width input-group-text">&#128100 Patient:</label>
+            <select name="patient" id="patient_select" class="form-select"></select><br>
+        </div>
+        <div class="input-group mb3">
+            <label for="booking_type" class="label label_width input-group-text">💼 Type</label>
+            <select name="booking_type" id="booking_type" class="form-select"></select><br>
+        </div>
+        <div class="input-group mb3">
+            <label for="booking_status" class="label label_width input-group-text">🔄 Status</label>
+            <select name="booking_status" id="booking_status" class="form-select"></select><br> 
+        </div>
+        <div class="input-group mb3">
+            <label for="booking_date" class="label label_width input-group-text">&#128197 Date</label>
+            <input type="date" name="booking_date" id="booking_date" class="form-control"><br>
+        </div>
+        <div class="input-group mb3">
+            <label for="booking_time" class="label label_width input-group-text">&#128337 Time</label>
+            <input type="time" name="booking_time" id="booking_time" class="form-control"><br>
+        </div>
+        <div class="input-group mb3">
+            <label for="duration" class="label label_width input-group-text">⏳Duration</label>
+            <select name="duration" id="duration" class="form-select"></select><br>
+        </div>
+        <div class="input-group mb3">
+            <label for="booking_reason" class="label label_width input-group-text">&#128195 Reason</label>
+            <textarea name="booking_reason" id="booking_reason" class="form-control"></textarea><br>
+        </div>
+        <input type="submit" value="Create booking" class="btn btn-success" style="width: 100%; margin-top: 10px; margin-bottom: 10px;">
     </form>
-    <!-- <script src="bookingScript.js"></script> -->
-    <script src="bookingScript.js" type="module"></script>
-    <script src="createBooking.js"></script>
+
+    <script src="createBooking.js", type="module"></script>
 </body>
 </html>

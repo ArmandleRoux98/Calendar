@@ -1,4 +1,4 @@
-#edit_booking{
+#edit_booking, #create_booking{
     margin: auto;
     margin-top: 100px;
     width: 40%;
@@ -13,14 +13,6 @@
 }
 .label_width{
     width: 25%;
-}
-
-#bookings_table tr:nth-child(even){
-  background-color: rgba(150, 212, 212, 0.4);
-}
-
-#bookings_table th:nth-child(even),td:nth-child(even){
-  background-color: rgba(150, 212, 212, 0.4);
 }
 
 .box_container {
@@ -40,4 +32,18 @@
 #diary_select{
     width: 50%;
     margin: auto;
+}
+
+
+.container {
+  max-width: 80%;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+h1, h2 {
+  font-weight: 600;
+  color: #333;
 }
