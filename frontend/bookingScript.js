@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', async (e) => {
+    
+    // Add todays date to date input
+    const today = new Date().toJSON();
+    const bookingDateInput = document.getElementById("booking_date");
+    bookingDateInput.value = today.slice(0, 10);
+    
+    // Fetch diaries to build diary select
     try {
         const res = await fetch(`http://localhost:3000/diaries`, {
             credentials: 'include',
@@ -7,18 +14,21 @@ document.addEventListener('DOMContentLoaded', async (e) => {
         if (!res.ok) throw new Error("Error in response.");
 
         const data = await res.json();
+        const diaries = data.data
         let select = document.getElementById('diary_select')
         if (!select) {
-            select = document.createElement("select");}
+            select = document.createElement("select");
+        }
         select.id = "diary_select"
-        data.data.forEach(diary => {
+        diaries.forEach(diary => {
             const option = document.createElement("option");
             option.value = JSON.stringify({"diary_uid": diary.uid, "entity_uid": diary.entity_uid});
             option.textContent = diary.name;
             select.appendChild(option);
         })
-        const div = document.getElementById("diaries");
-        console.log(data);
+        if (diaries.length > 0) {
+            loadBookings()
+        }
     } catch (error){
         console.log(error)
     }
@@ -41,6 +51,10 @@ if (newBooking) {
 
 async function loadBookings() {
         const date = document.getElementById("booking_date").value;
+        console.log(date);
+        if (date.length === 0){
+            return
+        }
         const diary = JSON.parse(document.getElementById("diary_select").value);
         const params = new URLSearchParams();
         params.append('date', date);
@@ -54,9 +68,13 @@ async function loadBookings() {
             if (!res.ok) throw new Error("Error in response.");
             const data = await res.json();
             // console.log(data)
-            bookingDiv = document.getElementById("bookings");
-            const table = await buildBookingsTable(data.data);
-            bookingDiv.appendChild(table);
+            const bookingDiv = document.getElementById("bookings");
+            if (bookingDiv) {
+                const table = await buildBookingsTable(data.data);
+                bookingDiv.appendChild(table);
+            } else {
+                console.log("bookings elements not found")
+            }
 
         } catch (error) {
             console.log(error);
@@ -123,7 +141,7 @@ async function buildBookingsTable(data) {
                     td.textContent = value;
                     tr.appendChild(td);
                 })
-                const editButton = createEditButton(booking.uid)
+                const editButton = createEditButton(booking.uid, booking.entity_uid)
                 const editTd = document.createElement("td");
                 editTd.appendChild(editButton);
                 tr.appendChild(editTd);
@@ -176,9 +194,10 @@ function createDeleteButton(bookingUid) {
     return delButton
 }
 
-function createEditButton(bookingUid) {
+function createEditButton(bookingUid, entityUid) {
     const params = new URLSearchParams();
     params.append("booking_uid", bookingUid);
+    params.append("entity_uid", entityUid);
     
     const editButton = document.createElement("button");
     editButton.type = "submit";
