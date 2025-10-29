@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     
     // Fetch all available diaries to build diary select element
     try {
-        const res = await fetch(`${window.location.host}/diaries`, {
+        const res = await fetch(`https://${window.location.host}/diaries`, {
             credentials: 'include',
         });
 
@@ -79,7 +79,7 @@ async function loadBookings() {
         params.append('diary_uid', diary.diary_uid);
 
         try {
-            const res = await fetch(`${window.location.host}/bookings?${params.toString()}`, {
+            const res = await fetch(`https://${window.location.host}/bookings?${params.toString()}`, {
                 credentials : "include",
             });
             if (!res.ok) throw new Error("Error in response.");
@@ -195,7 +195,7 @@ async function buildBookingsTable(data) {
  */
 function createDeleteButton(bookingUid) {
     const delButton = document.createElement("form");
-    delButton.action = `${window.location.host}/delete/${bookingUid}`;
+    delButton.action = `https://${window.location.host}/delete/${bookingUid}`;
     delButton.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (confirm("Are you sure you would like to cancel this booking?")) {
@@ -256,7 +256,7 @@ async function getBookingType(booking_type_uid) {
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
 
-    const res = await fetch(`${window.location.host}/booking_type?${params.toString()}`, {
+    const res = await fetch(`https://${window.location.host}/booking_type?${params.toString()}`, {
         credentials : "include"
     })
     const data = await res.json()
@@ -277,7 +277,7 @@ async function getBookingStatus(booking_status_uid) {
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
 
-    const res = await fetch(`${window.location.host}booking_status?${params.toString()}`, {
+    const res = await fetch(`https://${window.location.host}booking_status?${params.toString()}`, {
         credentials : "include"
     })
     const data = await res.json();

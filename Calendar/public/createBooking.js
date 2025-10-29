@@ -64,7 +64,7 @@ async function getPatients(entityUid) {
     const params = new URLSearchParams();
     params.append("entity_uid", entityUid);
     
-    const res = await fetch(`http://localhost:3000/patient?${params.toString()}`, {
+    const res = await fetch(`http://${window.location.host}/patient?${params.toString()}`, {
         credentials: "include"
     })
 
@@ -107,7 +107,7 @@ async function getBookingTypes(diary) {
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
 
-    const res = await fetch(`http://localhost:3000/booking_type?${params.toString()}`, {
+    const res = await fetch(`http://${window.location.host}/booking_type?${params.toString()}`, {
         credentials : "include"
     })
     const data = await res.json()
@@ -127,7 +127,7 @@ async function getBookingStatuses(diary) {
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
 
-    const res = await fetch(`${window.location.host}/booking_status?${params.toString()}`, {
+    const res = await fetch(`https://${window.location.host}/booking_status?${params.toString()}`, {
         credentials : "include"
     })
     const data = await res.json()
@@ -148,7 +148,7 @@ if (createBookingForm) {
 
         // Call to backend to apply update to booking
         try {
-            const res = await fetch(`${window.location.host}/create?${urlParams.toString()}`, {
+            const res = await fetch(`https://${window.location.host}/create?${urlParams.toString()}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

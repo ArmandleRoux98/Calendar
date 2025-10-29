@@ -3,7 +3,7 @@ import buildPatientSelect from "./createBooking.js";
 document.addEventListener("DOMContentLoaded", async () => {  
     const urlParams = new URLSearchParams(window.location.search);
     // Retrieve data for specified booking
-    const res = await fetch(`${window.location.host}/bookings/${urlParams.get("booking_uid")}`, {
+    const res = await fetch(`https://${window.location.host}/bookings/${urlParams.get("booking_uid")}`, {
         credentials: "include"
     });
     const data = await res.json();
@@ -61,7 +61,7 @@ if (editForm) {
 
         // Call to backend to apply update to booking
         try {
-            const res = await fetch(`${window.location.host}/update/${urlParams.get("booking_uid")}`, {
+            const res = await fetch(`https://${window.location.host}/update/${urlParams.get("booking_uid")}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
