@@ -2,11 +2,14 @@ import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 app.use(cors({
-    origin: "http://localhost:5500",
+    origin: `${process.env.HOST}:5500`,
     credentials: true,
 }));
 app.use(express.json());
