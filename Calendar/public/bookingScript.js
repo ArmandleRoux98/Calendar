@@ -277,7 +277,7 @@ async function getBookingStatus(booking_status_uid) {
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
 
-    const res = await fetch(`https://${window.location.host}booking_status?${params.toString()}`, {
+    const res = await fetch(`https://${window.location.host}/booking_status?${params.toString()}`, {
         credentials : "include"
     })
     const data = await res.json();
