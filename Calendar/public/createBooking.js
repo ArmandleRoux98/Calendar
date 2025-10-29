@@ -127,7 +127,7 @@ async function getBookingStatuses(diary) {
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
 
-    const res = await fetch(`http://localhost:3000/booking_status?${params.toString()}`, {
+    const res = await fetch(`${window.location.host}/booking_status?${params.toString()}`, {
         credentials : "include"
     })
     const data = await res.json()
@@ -148,7 +148,7 @@ if (createBookingForm) {
 
         // Call to backend to apply update to booking
         try {
-            const res = await fetch(`http://localhost:3000/create?${urlParams.toString()}`, {
+            const res = await fetch(`${window.location.host}/create?${urlParams.toString()}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
