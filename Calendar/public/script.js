@@ -5,6 +5,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const formData = new FormData(e.target);    
     const data = Object.fromEntries(formData.entries());
 
+    // Request login
     try {
         const res = await fetch(`https://${window.location.host}/login/`, {
             method: "POST",
@@ -17,8 +18,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${res.status}`);
         }
-       
         console.log("Success", data);
+       
+        // Redirect to homepage
         window.location.href = "index.HTML";
     } catch (error){
         console.error("Error:", error);
