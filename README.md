@@ -1,5 +1,5 @@
 # 📅 Booking Calendar App
-A simple booking calendar built with JavaScript frontend and an Express backend.
+A simple booking calendar that interacts with the GXWeb API to manage bookings.
 ## ✅ Features
 - User login and authentication
 - View bookings for a chosen date
