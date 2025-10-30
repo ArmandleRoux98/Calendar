@@ -5,25 +5,22 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const formData = new FormData(e.target);    
     const data = Object.fromEntries(formData.entries());
 
-    await fetch(`https://${window.location.host}/login/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-    })
-    .then(response => {
+    try {
+        const res = await fetch(`https://${window.location.host}/login/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+            body: JSON.stringify(data),
+        })
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${res.status}`);
         }
-        return response.json();
-    })
-    .then(data => {
+       
         console.log("Success", data);
         window.location.href = "index.HTML";
-    })
-    .catch(error => {
+    } catch (error){
         console.error("Error:", error);
-    });    
-})  
+    }
+})
