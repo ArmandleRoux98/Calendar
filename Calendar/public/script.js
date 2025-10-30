@@ -7,7 +7,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     // Request login
     try {
-        const res = await fetch(`https://${window.location.host}/login/`, {
+        const res = await fetch(`http://${window.location.host}/login/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
