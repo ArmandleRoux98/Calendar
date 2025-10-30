@@ -23,9 +23,16 @@ const __dirname = dirname(__filename);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Login route
+/**
+ * Authenticate user on GXWeb, retrieve session id and
+ * store it in a cookie.
+ * @route POST /login
+ */
+
 app.post('/login', async (req, res) => {
+    // Retrieve credentials
     const { username, password } = req.body;
+    // Build payload for API call
     const payload = {
         "model": {
             "timeout": 259200
@@ -39,6 +46,7 @@ app.post('/login', async (req, res) => {
         ]
     }
     try {
+        // Call to GXWeb to authenticate credentials
         const response = await fetch("https://dev_interview.qagoodx.co.za/api/session", {
             method: "POST",
             headers: {
@@ -53,6 +61,7 @@ app.post('/login', async (req, res) => {
 
         const sessionID = `${data.data.uid}`
 
+        // Add session id to cookie
         res.cookie("session_id", sessionID, {
             httpOnly: false,
             secure: false,
@@ -67,8 +76,13 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Get available diaries and return them in JSON response.
+/**
+ * Retrieve available diaries from GXWeb and return the 
+ * data as a JSON response.
+ * @route GET /diaries
+ */
 app.get("/diaries", async (req, res) => {
+    // Create parameters to build endpoint
     const fields = [
         "uid",
         "entity_uid",
@@ -78,25 +92,34 @@ app.get("/diaries", async (req, res) => {
     params.append('fields', JSON.stringify(fields));
     const endPoint = `https://dev_interview.qagoodx.co.za/api/diary?${params.toString()}`;
     try {
+        // Call to GXWeb to get diary data
         const response = await fetch(endPoint, {
             method: "GET",
             headers: {
                 "Cookie": `session_id=${req.cookies.session_id}`
             }
         })
+
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
+        
+        // Return JSON response
         const data = await response.json()
-
         console.log("Success", data);
-
         res.json(data)
+
     } catch (error) {
         console.error("Error:", error);
     };
 });
 
-// Retrieve bookings in diary with the given diary uid and on the specified date
+/**
+ * Retrieve bookings in diary with the given diary uid 
+ * and on the specified date from GXWeb and return data 
+ * as a JSON response
+ * @route GET /bookings
+ */
 app.get("/bookings", async (req, res) => {
+    // Create parameters to build endpoint
     const { date, diary_uid } = req.query;
     const fields = [
         ["AS", ["I", "patient_uid", "name"], "patient_name"],
@@ -133,16 +156,17 @@ app.get("/bookings", async (req, res) => {
     params.append('filter', JSON.stringify(filter));
     const endPoint = `https://dev_interview.qagoodx.co.za/api/booking?${params.toString()}`;
     try {
+        // Call to GXWeb to get booking data
         const response = await fetch(endPoint, {
             method: "GET",
             headers: {
                 "Cookie": `session_id=${req.cookies.session_id}`
             }
         })
+
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
+        
         const data = await response.json();
-
-
         res.json(data)
 
     } catch (error) {
@@ -150,9 +174,13 @@ app.get("/bookings", async (req, res) => {
     };
 })
 
-// Retrieve booking with given booking uid
+/**
+ * Retrieve booking with the given uid in diary 
+ * from GXWeb and return data as a JSON response
+ * @route GET /bookings/:uid
+ */
 app.get("/bookings/:uid", async (req, res) => {
-    console.log(req.params.uid);
+    // Create parameters to build endpoint
     const bookingUid = req.params.uid
     const fields = [
         "uid",
@@ -171,9 +199,9 @@ app.get("/bookings/:uid", async (req, res) => {
     const params = new URLSearchParams();
     params.append('fields', JSON.stringify(fields));
     params.append('filter', JSON.stringify(filter));
-
     const endPoint = `https://dev_interview.qagoodx.co.za/api/booking?${params.toString()}`;
     try {
+        // Call to GXWeb to get data for booking with given uid
         const response = await fetch(endPoint, {
             method: "GET",
             headers: {
@@ -191,14 +219,18 @@ app.get("/bookings/:uid", async (req, res) => {
     };
 })
 
-// Update booking with given booking uid
+/**
+ * Update booking with the given uid in diary
+ * from GXWeb and return data as a JSON response
+ * @route GET /update/:uid
+ */
 app.post("/update/:uid", async (req, res) => {
+    // Create data from request to build payload
     const uid = Number(req.params.uid)
     const date = `${req.body.booking_date}T${req.body.booking_time}:00`
     const duration = Number(req.body.duration)
     const patientUid = Number(req.body.patient)
     const reason = req.body.booking_reason
-
     const payload = {
         "model":
         {
@@ -210,8 +242,8 @@ app.post("/update/:uid", async (req, res) => {
             "cancelled": false
         }
     }
-
     try {
+        // Call to GXWeb to update booking with given uid
         const response = await fetch(`https://dev_interview.qagoodx.co.za/api/booking/${uid}`, {
             method: "PUT",
             headers: {
@@ -233,7 +265,11 @@ app.post("/update/:uid", async (req, res) => {
     };
 })
 
-// Retrieves all booking types available for given entity and dairy uids
+/**
+ * Retrieve booking types in diary with the given
+ * uid from GXWeb and return data as a JSON response
+ * @route GET /booking_type
+ */
 app.get("/booking_type", async (req, res) => {
     const entityUid = req.query.entity_uid;
     const diaryUid = req.query.diary_uid;
@@ -261,6 +297,7 @@ app.get("/booking_type", async (req, res) => {
     params.append('filter', JSON.stringify(filter));
     const endPoint = `https://dev_interview.qagoodx.co.za/api/booking_type?${params.toString()}`;
     try {
+        // Call to GXWeb to get all booking types
         const response = await fetch(endPoint, {
             method: "GET",
             headers: {
@@ -279,12 +316,15 @@ app.get("/booking_type", async (req, res) => {
     };
 })
 
-// Retrieves all booking statuses available for given entity and dairy uids
+/**
+ * Retrieve booking statuses in diary with the given
+ * uid from GXWeb and return data as a JSON response
+ * @route GET /booking_status
+ */
 app.get("/booking_status", async (req, res) => {
+    // Create parameters to build endpoint
     const entityUid = Number(req.query.entity_uid);
     const diaryUid = Number(req.query.diary_uid);
-
-
     const fields = [
         "uid",
         "name"
@@ -307,6 +347,7 @@ app.get("/booking_status", async (req, res) => {
     params.append('filter', JSON.stringify(filter));
     const endPoint = `https://dev_interview.qagoodx.co.za/api/booking_status?${params.toString()}`;
     try {
+        // Call to GXWeb to get all booking statuses
         const response = await fetch(endPoint, {
             method: "GET",
             headers: {
@@ -324,10 +365,14 @@ app.get("/booking_status", async (req, res) => {
     };
 })
 
-// Retrieves all patients available for given entity
+/**
+ * Retrieve patients statuses in diary with the given
+ * uid from GXWeb and return data as a JSON response
+ * @route GET /patient
+ */
 app.get("/patient", async (req, res) => {
+    // Create parameters to build endpoint
     const entityUid = Number(req.query.entity_uid);
-
     const fields = [
         "uid",
         "name",
@@ -345,6 +390,7 @@ app.get("/patient", async (req, res) => {
     params.append('limit', limit)
     const endPoint = `https://dev_interview.qagoodx.co.za/api/patient?${params.toString()}`;
     try {
+        // // Call to GXWeb to get all patient data
         const response = await fetch(endPoint, {
             method: "GET",
             headers: {
@@ -362,9 +408,14 @@ app.get("/patient", async (req, res) => {
 })
 
 
-// Make API request to GXWeb to create new booking with given information
+/**
+ * Post request to GXWeb to create a booking in the diary
+ * with the given uid with the given information and return
+ * data as JSON response
+ * @route GET /create
+ */
 app.post("/create", async (req, res) => {
-    console.log("Request has been made")
+    // Get data from request to build payload
     const diary = req.query
     const payload = {
         "model": {
@@ -379,10 +430,9 @@ app.post("/create", async (req, res) => {
             "cancelled": false
         }
     }
-    console.log(payload)
     if (payload.model.start_time.length === 19) {
-        console.log("Test")
         try {
+            // Call to GXWeb to create new booking
             const response = await fetch("https://dev_interview.qagoodx.co.za/api/booking", {
                 method: "POST",
                 headers: {
@@ -395,7 +445,6 @@ app.post("/create", async (req, res) => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
 
             const data = await response.json();
-
             res.json(data);
 
             console.log("Booking Created Successfully: ", data)
@@ -406,7 +455,13 @@ app.post("/create", async (req, res) => {
 })
 
 // Make API request to GXWeb to cancel booking with given booking uid
+/**
+ * Put request to GXWeb to cancel the booking with the given uid 
+ * and return data as JSON response
+ * @route GET //delete/:uid
+ */
 app.put("/delete/:uid", async (req, res) => {
+    // Get data from request to build payload
     const bookingUid = req.params.uid
     const payload = {
         "model": {
@@ -415,6 +470,7 @@ app.put("/delete/:uid", async (req, res) => {
         }
     }
     try {
+        // Call to GXWeb to cancel booking
         const response = await fetch(`https://dev_interview.qagoodx.co.za/api/booking/${bookingUid}`, {
             method: "PUT",
             headers: {
@@ -427,7 +483,6 @@ app.put("/delete/:uid", async (req, res) => {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
 
         const data = await response.json();
-
         res.json(data);
 
         console.log("Booking Deleted Successfully: ", data)
