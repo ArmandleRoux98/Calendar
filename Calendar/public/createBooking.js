@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  * @param {number} entityUid - Uid of entity.
  * @param {number} patientUid - Uid of patient to focus on select.
  */
-export default async function buildPatientSelect(entityUid, patientUid = -1) {
+export async function buildPatientSelect(entityUid, patientUid = -1) {
     const patientSelect = document.getElementById("patient_select");
     if (patientSelect) {
         const patients = await getPatients(entityUid);
