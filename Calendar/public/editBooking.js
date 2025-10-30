@@ -1,6 +1,10 @@
-import buildPatientSelect from "./createBooking.js";
+import { buildPatientSelect, createDurationSelect } from "./createBooking.js";
 
-document.addEventListener("DOMContentLoaded", async () => {  
+document.addEventListener("DOMContentLoaded", async () => {
+    if (!document.cookie.includes("session_id")) {
+        window.location.href = "/login.html";
+        return;
+    }
     const urlParams = new URLSearchParams(window.location.search);
     // Retrieve data for specified booking
     const res = await fetch(`https://${window.location.host}/bookings/${urlParams.get("booking_uid")}`, {
@@ -29,22 +33,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(reason);
         const reasonTextBox = document.getElementById("booking_reason");
         if (reasonTextBox) {
-            reasonTextBox.value = reason
+            reasonTextBox.value = reason;
         }
         // Create duration select  (replace with import function form createBooking.js)
-        const durationSelect = document.getElementById("duration")
-        if (durationSelect){
-            durationValues.forEach((value) => {
-                const durationOption = document.createElement("option");
-                durationOption.value = value;
-                durationOption.text = value;
-                if (value === booking.duration) {
-                    durationOption.selected = true;
-                }
-                durationSelect.appendChild(durationOption);
-            })
-            
-        }
+        createDurationSelect();
     }
 })
 

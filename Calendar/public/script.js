@@ -15,13 +15,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             credentials: 'include',
             body: JSON.stringify(data),
         })
-        if (!response.ok) {
+        if (!res.ok) {
             throw new Error(`HTTP error! Status: ${res.status}`);
         }
-        console.log("Success", data);
        
         // Redirect to homepage
-        window.location.href = "index.HTML";
+        window.location.href = "/";
     } catch (error){
         console.error("Error:", error);
     }

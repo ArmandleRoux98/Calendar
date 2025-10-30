@@ -1,12 +1,16 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
+    if (!document.cookie.includes("session_id")) {
+        window.location.href = "/login.html";
+        return;
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const diary = {
         entity_uid: urlParams.get("entity_uid"),
         diary_uid: urlParams.get("diary_uid")
     }
 
-    await buildPatientSelect(urlParams.get("entity_uid"))
+    await buildPatientSelect(urlParams.get("entity_uid"));
 
     // retrieve booking types and create select element
     const bookingTypes = await getBookingTypes(diary);
@@ -26,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const option = document.createElement("option");
         option.value = status.uid;
         option.textContent = status.name;
-        bookingStatusSelect.appendChild(option)
+        bookingStatusSelect.appendChild(option);
     }
 
     createDurationSelect();
@@ -39,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  * @param {number} patientUid - Uid of patient to focus on select.
  */
 export default async function buildPatientSelect(entityUid, patientUid = -1) {
-    const patientSelect = document.getElementById("patient_select")
+    const patientSelect = document.getElementById("patient_select");
     if (patientSelect) {
         const patients = await getPatients(entityUid);
         patients.data.forEach(patient => {
@@ -81,7 +85,7 @@ async function getPatients(entityUid) {
 **/
 export async function createDurationSelect(bookingDuration) {
     const durationValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
-    const durationSelect = document.getElementById("duration")
+    const durationSelect = document.getElementById("duration");
     if (durationSelect){
         durationValues.forEach((value) => {
             const durationOption = document.createElement("option");
@@ -110,10 +114,9 @@ async function getBookingTypes(diary) {
     const res = await fetch(`https://${window.location.host}/booking_type?${params.toString()}`, {
         credentials : "include"
     })
-    const data = await res.json()
+    const data = await res.json();
 
-    console.log(data)
-    return data
+    return data;
 }
 
 /**
@@ -130,10 +133,9 @@ async function getBookingStatuses(diary) {
     const res = await fetch(`https://${window.location.host}/booking_status?${params.toString()}`, {
         credentials : "include"
     })
-    const data = await res.json()
+    const data = await res.json();
 
-    console.log(data)
-    return data
+    return data;
 }
 
 const createBookingForm = document.getElementById('create_booking')
@@ -163,7 +165,7 @@ if (createBookingForm) {
             // Redirect to home page
             window.location.href = "./index.html";
         } catch (error) {
-            console.error(error)
+            console.error(error);
         }
         window.location.href = "/";
     })    

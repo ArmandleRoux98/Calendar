@@ -1,5 +1,8 @@
-document.addEventListener('DOMContentLoaded', async (e) => {
-    
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!document.cookie.includes("session_id")) {
+        window.location.href = "/login.html";
+        return;
+    }
     // Add todays date to date input
     const today = new Date().toJSON();
     const bookingDateInput = document.getElementById("booking_date");
@@ -16,8 +19,8 @@ document.addEventListener('DOMContentLoaded', async (e) => {
         if (!res.ok) throw new Error("Error in response.");
 
         const data = await res.json();
-        const diaries = data.data
-        let select = document.getElementById('diary_select')
+        const diaries = data.data;
+        let select = document.getElementById('diary_select');
         if (!select) {
             select = document.createElement("select");
         }
@@ -29,19 +32,19 @@ document.addEventListener('DOMContentLoaded', async (e) => {
             select.appendChild(option);
         })
         if (diaries.length > 0) {
-            loadBookings()
+            loadBookings();
         }
-        applyNewBooking()
+        applyNewBooking();
     } catch (error){
-        console.log(error)
+        console.log(error);
     }
 })
 
 // Add bookings to "get_bookings" div
-const getBookings = document.getElementById("get_bookings")
-if (getBookings) {
-    getBookings.addEventListener("click", async => {
-        loadBookings()
+const bookingDateInput = document.getElementById("booking_date")
+if (bookingDateInput) {
+    bookingDateInput.addEventListener("change", () => {
+        loadBookings();
     })
 }
 
@@ -53,11 +56,11 @@ if (getBookings) {
 async function applyNewBooking() {
     const newBooking = document.getElementById("new_booking")
     if (newBooking) {
-        const diarySelect = document.getElementById("diary_select")
-        const dairyData = JSON.parse(diarySelect.value)
+        const diarySelect = document.getElementById("diary_select");
+        const dairyData = JSON.parse(diarySelect.value);
         const params = new URLSearchParams();
-        params.append("diary_uid", dairyData.diary_uid)
-        params.append("entity_uid", dairyData.entity_uid)
+        params.append("diary_uid", dairyData.diary_uid);
+        params.append("entity_uid", dairyData.entity_uid);
         newBooking.addEventListener("click", () => {
             window.location.href = `create_booking.html?${params.toString()}`;
         })
@@ -107,7 +110,7 @@ async function buildBookingsTable(data) {
     // Destroy previous table
     const temp_table = document.getElementById("bookings_table");
     if (temp_table) {
-        temp_table.remove()
+        temp_table.remove();
     }
 
     const table = document.createElement("table");
@@ -133,6 +136,10 @@ async function buildBookingsTable(data) {
     thead.appendChild(headerRow)
     thead.classList.add("table-dark");
 
+    const bookingTypes = await getBookingTypes();
+    const bookingStatuses = await getBookingStatuses();
+    let bookingType = "";
+    let bookingStatus = "";
     // Build table body
     if (data.length > 0) {
         for (const booking of data) {
@@ -141,8 +148,16 @@ async function buildBookingsTable(data) {
                 const tr = document.createElement("tr");
                 const patientName = booking.patient_name;
                 const patientSurname = booking.patient_surname;
-                const booking_type = await getBookingType(booking.booking_type_uid);
-                const booking_status = await getBookingStatus(booking.booking_status_uid);
+                bookingTypes.forEach(type => {
+                    if (type.uid === booking.booking_type_uid){
+                        bookingType = type.name;
+                    }
+                })
+                bookingStatuses.forEach(type => {
+                    if (type.uid === booking.booking_type_uid){
+                        bookingStatus = type.name;
+                    }
+                })
                 const start_time = booking.start_time.slice(booking.start_time.length-8, booking.start_time.length-3);
                 const duration = booking.duration;
                 const reason = booking.reason;
@@ -150,8 +165,8 @@ async function buildBookingsTable(data) {
                 const bookingData = [
                     patientName, 
                     patientSurname, 
-                    booking_type, 
-                    booking_status, 
+                    bookingType, 
+                    bookingStatus, 
                     start_time, 
                     duration, 
                     reason];
@@ -249,9 +264,8 @@ function createEditButton(bookingUid, entityUid) {
 }
 
 
-async function getBookingType(booking_type_uid) {
+async function getBookingTypes() {
     const params = new URLSearchParams();
-    params.append("booking_type_uid", booking_type_uid);
     const diary = JSON.parse(document.getElementById("diary_select").value);
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
@@ -259,20 +273,12 @@ async function getBookingType(booking_type_uid) {
     const res = await fetch(`https://${window.location.host}/booking_type?${params.toString()}`, {
         credentials : "include"
     })
-    const data = await res.json()
-
-    booking_type_uid = Number(booking_type_uid)
-
-    for (const type of data.data) {
-        if (type.uid == booking_type_uid){
-            return type.name;
-        }
-    }
+    const data = await res.json();
+    return data.data;
 }
 
-async function getBookingStatus(booking_status_uid) {
+async function getBookingStatuses() {
     const params = new URLSearchParams();
-    params.append("booking_status_uid", booking_status_uid);
     const diary = JSON.parse(document.getElementById("diary_select").value);
     params.append('diary_uid', diary.diary_uid);
     params.append('entity_uid', diary.entity_uid);
@@ -281,13 +287,5 @@ async function getBookingStatus(booking_status_uid) {
         credentials : "include"
     })
     const data = await res.json();
-    booking_status_uid = Number(booking_status_uid)
-
-    for (const type of data.data) {
-        if (type.uid == booking_status_uid){
-            return type.name;
-        }
-    }
-
-    return data.data.status;
+    return data.data;
 }
