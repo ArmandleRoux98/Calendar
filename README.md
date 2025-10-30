@@ -1,0 +1,51 @@
+# 📅 Booking Calendar App
+A simple booking calendar built with JavaScript frontend and an Express backend.
+## ✅ Features
+- User login and authentication
+- View bookings for a chosen date
+- Create, update and cancel bookings
+## 🧠 Tech Stack
+| Layer | Tech |
+|------|------|
+| Frontend | HTML, CSS, JavaScript |
+| Backend | Node.js, Express.js |
+## 📂 Folder Structure
+```
+Calendar/
+│── public/
+│ ├── bookingScript.js
+│ ├── create_booking.html
+│ ├── createBooking.js
+│ ├── create_booking.html
+│ ├── editBooking.js
+│ ├── edit_booking.html
+│ ├── index.html
+│ ├── login.html
+│ ├── scripts.js 
+│ └── styles.css
+│── package.json
+└── server.js 
+```
+## ⚙️ Installation
+### 1️⃣ Clone repo
+```
+git clone https://github.com/ArmandleRoux98/Calendar.git
+```
+### Install dependencies
+```
+npm install
+```
+
+## 🔑 Environment Variables
+Create a `.env` file and add environment variables
+```
+PORT=3000
+HOST=http://localhost
+```
+
+## ▶️ Run the App
+```
+npm start
+```
+
+Open your browser at: http://localhost:3000
