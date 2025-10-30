@@ -43,27 +43,27 @@ app.post('/login', async (req, res) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    });
+            },
+            body: JSON.stringify(payload)
+        });
 
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-    const data = await response.json();
+        const data = await response.json();
 
-    const sessionID = `${data.data.uid}`
+        const sessionID = `${data.data.uid}`
 
-    res.cookie("session_id", sessionID, {
-        httpOnly: false,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+        res.cookie("session_id", sessionID, {
+            httpOnly: false,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         console.log("Success", data.data.uid);
-        res.json({ uid: data.data.uid})
-    } catch(error) {
+        res.json({ uid: data.data.uid })
+    } catch (error) {
         console.error("Error:", error);
-        res.status(500).json({ error: "Login Failed"});
+        res.status(500).json({ error: "Login Failed" });
     }
 });
 
@@ -73,14 +73,6 @@ app.get("/diaries", async (req, res) => {
         "uid",
         "entity_uid",
         "name"
-    ]
-    const filter = [
-        "AND",
-        [
-            "=",
-            ["I","entity_uid"],
-            ["L", ""]
-        ]
     ]
     const params = new URLSearchParams();
     params.append('fields', JSON.stringify(fields));
@@ -94,11 +86,11 @@ app.get("/diaries", async (req, res) => {
         })
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         const data = await response.json()
-        
+
         console.log("Success", data);
 
         res.json(data)
-    } catch(error) {
+    } catch (error) {
         console.error("Error:", error);
     };
 });
@@ -107,8 +99,8 @@ app.get("/diaries", async (req, res) => {
 app.get("/bookings", async (req, res) => {
     const { date, diary_uid } = req.query;
     const fields = [
-        ["AS",["I","patient_uid","name"],"patient_name"],
-        ["AS",["I","patient_uid","surname"],"patient_surname"],
+        ["AS", ["I", "patient_uid", "name"], "patient_name"],
+        ["AS", ["I", "patient_uid", "surname"], "patient_surname"],
         "uid",
         "entity_uid",
         "booking_type_uid",
@@ -123,17 +115,17 @@ app.get("/bookings", async (req, res) => {
         "AND",
         [
             "=",
-            ["I","diary_uid"],
-            ["L",Number(diary_uid)]
+            ["I", "diary_uid"],
+            ["L", Number(diary_uid)]
         ],
         [
             "=",
             [
                 "::",
-                ["I","start_time"],
-                ["I","date"]
+                ["I", "start_time"],
+                ["I", "date"]
             ],
-            ["L",date]
+            ["L", date]
         ]
     ]
     const params = new URLSearchParams();
@@ -153,7 +145,7 @@ app.get("/bookings", async (req, res) => {
 
         res.json(data)
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error:", error);
     };
 })
@@ -172,9 +164,9 @@ app.get("/bookings/:uid", async (req, res) => {
         "cancelled"
     ]
     const filter = [
-            "=",
-            ["I","uid"],
-            ["L",Number(bookingUid)]
+        "=",
+        ["I", "uid"],
+        ["L", Number(bookingUid)]
     ]
     const params = new URLSearchParams();
     params.append('fields', JSON.stringify(fields));
@@ -190,11 +182,11 @@ app.get("/bookings/:uid", async (req, res) => {
         })
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         const data = await response.json();
-        
+
         res.json(data);
 
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error:", error);
     };
 })
@@ -208,7 +200,7 @@ app.post("/update/:uid", async (req, res) => {
     const reason = req.body.booking_reason
 
     const payload = {
-        "model": 
+        "model":
         {
             "uid": uid,
             "start_time": date,
@@ -217,7 +209,7 @@ app.post("/update/:uid", async (req, res) => {
             "reason": reason,
             "cancelled": false
         }
-    }   
+    }
 
     try {
         const response = await fetch(`https://dev_interview.qagoodx.co.za/api/booking/${uid}`, {
@@ -225,18 +217,18 @@ app.post("/update/:uid", async (req, res) => {
             headers: {
                 "Content-Type": "application/json",
                 "Cookie": `session_id=${req.cookies.session_id}`
-        },
-        body: JSON.stringify(payload)
-    });
+            },
+            body: JSON.stringify(payload)
+        });
 
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
 
-    const data = await response.json();
+        const data = await response.json();
 
-    res.json(data);
+        res.json(data);
 
-    console.log("Booking Updated Successfully: ", data)
-    } catch(error) {
+        console.log("Booking Updated Successfully: ", data)
+    } catch (error) {
         console.error("Error:", error);
     };
 })
@@ -253,15 +245,15 @@ app.get("/booking_type", async (req, res) => {
     ]
     const filter = ["AND",
         ["=",
-            ["I","entity_uid"],
-            ["L",Number(entityUid)]
+            ["I", "entity_uid"],
+            ["L", Number(entityUid)]
         ],
         ["=",
-            ["I","diary_uid"],
-            ["L",Number(diaryUid)]
+            ["I", "diary_uid"],
+            ["L", Number(diaryUid)]
         ],
         ["NOT",
-            ["I","disabled"]
+            ["I", "disabled"]
         ]
     ]
     const params = new URLSearchParams();
@@ -277,12 +269,12 @@ app.get("/booking_type", async (req, res) => {
         })
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         const data = await response.json();
-        
+
         console.log("Success", data);
         res.json(data);
 
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error:", error);
     };
 })
@@ -299,15 +291,15 @@ app.get("/booking_status", async (req, res) => {
     ]
     const filter = ["AND",
         ["=",
-            ["I","entity_uid"],
-            ["L",entityUid]
+            ["I", "entity_uid"],
+            ["L", entityUid]
         ],
         ["=",
-            ["I","diary_uid"],
-            ["L",diaryUid]
+            ["I", "diary_uid"],
+            ["L", diaryUid]
         ],
         ["NOT",
-            ["I","disabled"]
+            ["I", "disabled"]
         ]
     ]
     const params = new URLSearchParams();
@@ -323,11 +315,11 @@ app.get("/booking_status", async (req, res) => {
         })
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         const data = await response.json();
-        
+
         console.log("Success", data);
         res.json(data)
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error:", error);
     };
 })
@@ -364,7 +356,7 @@ app.get("/patient", async (req, res) => {
 
         res.json(data);
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error:", error);
     };
 })
@@ -399,15 +391,15 @@ app.post("/create", async (req, res) => {
                 },
                 body: JSON.stringify(payload)
             });
-    
+
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-    
+
             const data = await response.json();
 
             res.json(data);
-    
+
             console.log("Booking Created Successfully: ", data)
-        } catch(error) {
+        } catch (error) {
             console.error("Error:", error);
         };
     }
@@ -428,18 +420,18 @@ app.put("/delete/:uid", async (req, res) => {
             headers: {
                 "Content-Type": "application/json",
                 "Cookie": `session_id=${req.cookies.session_id}`
-        },
-        body: JSON.stringify(payload)
-    });
+            },
+            body: JSON.stringify(payload)
+        });
 
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
 
-    const data = await response.json();
+        const data = await response.json();
 
-    res.json(data);
+        res.json(data);
 
-    console.log("Booking Deleted Successfully: ", data)
-    } catch(error) {
+        console.log("Booking Deleted Successfully: ", data)
+    } catch (error) {
         console.error("Error:", error);
     };
 })
