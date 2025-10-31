@@ -10,7 +10,6 @@ import { dirname } from 'path';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT;
 app.use(cors({
     origin: `${process.env.HOST}`,
     credentials: true,
