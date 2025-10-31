@@ -23,6 +23,11 @@ Calendar/
 │ ├── login.html
 │ ├── scripts.js 
 │ └── styles.css
+│── tests/
+│ ├── bookingData.test.js
+│ ├── bookings.test.js
+│ ├── diaries.test.js
+│ ├── login.test.js
 │── package.json
 └── server.js 
 ```
