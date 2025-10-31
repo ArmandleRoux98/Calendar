@@ -38,6 +38,7 @@ git clone https://github.com/ArmandleRoux98/Calendar.git
 ```
 ### Install dependencies
 ```
+cd Calendar/
 npm install
 ```
 
