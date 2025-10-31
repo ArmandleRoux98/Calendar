@@ -69,7 +69,7 @@ app.post('/login', async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         console.log("Success", data.data.uid);
-        res.json({ uid: data.data.uid })
+        res.status(200).json({ uid: data.data.uid })
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Login Failed" });
@@ -103,12 +103,13 @@ app.get("/diaries", async (req, res) => {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         
         // Return JSON response
-        const data = await response.json()
+        const data = await response.json();
         console.log("Success", data);
-        res.json(data)
+        res.status(200).json(data);
 
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: "Failed to retrieve diaries" });
     };
 });
 
@@ -167,10 +168,11 @@ app.get("/bookings", async (req, res) => {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         
         const data = await response.json();
-        res.json(data)
+        res.status(200).json(data)
 
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: "Failed to retrieve bookings" });
     };
 })
 
@@ -211,11 +213,12 @@ app.get("/bookings/:uid", async (req, res) => {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}\nError: ${response.statusText}`);
         const data = await response.json();
 
-        res.json(data);
+        res.status(200).json(data);
 
 
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: `Failed to retrieve booking: ${bookingUid}` });
     };
 })
 
@@ -262,6 +265,7 @@ app.post("/update/:uid", async (req, res) => {
         console.log("Booking Updated Successfully: ", data)
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: `Failed to update booking: ${bookingUid}` });
     };
 })
 
@@ -313,6 +317,7 @@ app.get("/booking_type", async (req, res) => {
 
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: `Failed to retrieve booking types` });
     };
 })
 
@@ -362,6 +367,7 @@ app.get("/booking_status", async (req, res) => {
 
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: `Failed to retrieve booking statuses` });
     };
 })
 
@@ -404,6 +410,7 @@ app.get("/patient", async (req, res) => {
 
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: `Failed to retrieve patients` });
     };
 })
 
@@ -430,8 +437,10 @@ app.post("/create", async (req, res) => {
             "cancelled": false
         }
     }
-    if (payload.model.start_time.length === 19) {
-        try {
+    console.log(req.body)
+    console.log(req.query)
+    try {
+        if (payload.model.start_time.length === 19) {
             // Call to GXWeb to create new booking
             const response = await fetch("https://dev_interview.qagoodx.co.za/api/booking", {
                 method: "POST",
@@ -448,11 +457,14 @@ app.post("/create", async (req, res) => {
             res.json(data);
 
             console.log("Booking Created Successfully: ", data)
-        } catch (error) {
-            console.error("Error:", error);
-        };
-    }
-})
+        } else {
+            res.status(500).json({ error: `Invalid data - Bad Request` });
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: `Failed to create booking: ${bookingUid}` });
+    };
+});
 
 // Make API request to GXWeb to cancel booking with given booking uid
 /**
@@ -488,9 +500,9 @@ app.put("/delete/:uid", async (req, res) => {
         console.log("Booking Deleted Successfully: ", data)
     } catch (error) {
         console.error("Error:", error);
+        res.status(500).json({ error: `Failed to delete booking: ${bookingUid}` });
     };
 })
 
-app.listen(port, () => {
-    console.log(`Application running - listening on port ${port}`);
-})
+export default app;
+
