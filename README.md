@@ -51,7 +51,7 @@ HOST=http://localhost
 
 ## ▶️ Run the App
 ```
-npm start
+node index.js
 ```
 
 Open your browser at: http://localhost:3000
