@@ -28,6 +28,8 @@ Calendar/
 │ ├── bookings.test.js
 │ ├── diaries.test.js
 │ ├── login.test.js
+│── index.js
+│── jest.config.js
 │── package.json
 └── server.js 
 ```
